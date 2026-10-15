@@ -1,0 +1,85 @@
+# Unity caches and local editor state
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Ee]xported[Oo]bj/
+/.cache/
+/.utmp/
+/sysinfo.txt
+
+# Player builds and exported packages
+/[Bb]uild/
+/[Bb]uilds/
+/[Bb]in/
+/.gradle/
+*.apk
+*.aab
+*.unitypackage
+
+# Recorder output, profiler data and memory snapshots
+/[Rr]ecordings/
+/[Pp]rofiler[Cc]aptures/
+/[Mm]emory[Cc]aptures/
+
+# Unity crash recovery and automatic scene backups (including folder metadata)
+/Assets/_Recovery/
+/Assets/_Recovery.meta
+/Assets/__Backup/
+/Assets/__Backup.meta
+/Assets/__SceneBackups/
+/Assets/__SceneBackups.meta
+
+# Generated Addressables and StreamingAssets output
+/ServerData/
+/Assets/AddressableAssetsData/*/*.bin*
+/Assets/StreamingAssets/aa/
+/Assets/StreamingAssets/aa.meta
+
+# IDE state and Unity-generated solution/project files
+/.vs/
+/.idea/
+/.vscode/
+/*.csproj
+/*.unityproj
+/*.sln
+/*.slnx
+/*.sln.docstates
+/*.pidb
+/*.pdb
+/*.mdb
+/*.opendb
+/*.VC.db
+/*.suo
+/*.user
+/*.userprefs
+/Assets/Plugins/Editor/JetBrains*
+
+# Unity build debug data
+/*_BackUpThisFolder_ButDontShipItWithYourGame/
+/*_BurstDebugInformation_DoNotShip/
+/crashlytics-build.properties
+
+# Local automation output, backups and temporary files
+/.codex/
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+*.swp
+*.swo
+*~
+
+# Operating-system files
+.DS_Store
+._*
+Thumbs.db
+Thumbs.db.meta
+Desktop.ini
+$RECYCLE.BIN/
+
+# Keep Assets source files and their .meta files, Packages (including the lock
+# file), and ProjectSettings. Do not ignore all DLLs: plugins can require them.
+# Gitignore has no file-size filter; new large source assets need explicit paths.
