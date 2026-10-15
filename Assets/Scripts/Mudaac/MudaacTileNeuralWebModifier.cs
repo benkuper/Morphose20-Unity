@@ -22,7 +22,7 @@ public class MudaacTileNeuralWebModifier : MudaacTileModifier
     [Tooltip("Nested webs add smaller filaments inside the large cells. Higher counts cost more GPU time.")]
     [Range(1, 3)] public int layers = 3;
     [Range(0f, 1f)] public float fineStrength = 0.32f;
-    [Range(0f, 2f)] public float distortion = 0.75f;
+    [Range(0f, 2f)] public float distortion = 0.35f;
     [Range(0f, 5f)] public float junctionStrength = 1.6f;
     [Range(0f, 1f)] public float grainStrength = 0.13f;
     public int seed = 7;
@@ -52,19 +52,27 @@ public class MudaacTileNeuralWebModifier : MudaacTileModifier
     private static readonly int DetailId = Shader.PropertyToID("_WebDetail");
     private static readonly int LightId = Shader.PropertyToID("_WebLight");
     private static readonly int MotionId = Shader.PropertyToID("_WebMotion");
+    private static readonly int PulseId = Shader.PropertyToID("_WebPulse");
 
     private float elapsed;
     private float lastTime = float.NaN;
     public float AnimationTime => elapsed;
 
-    private void Reset()
+    private void Reset() => AssignDefaultMaterial();
+
+    private void AssignDefaultMaterial()
     {
 #if UNITY_EDITOR
         webMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/MudaacNeuralWeb.mat");
 #endif
     }
 
-    private void OnEnable() => lastTime = float.NaN;
+    private void OnEnable()
+    {
+        lastTime = float.NaN;
+        if (webMaterial == null)
+            AssignDefaultMaterial();
+    }
 
     [ContextMenu("Restart Web Animation")]
     public void RestartAnimation()
@@ -123,7 +131,7 @@ public class MudaacTileNeuralWebModifier : MudaacTileModifier
             block.SetVector(LightId, new Vector4(Mathf.Max(0f, brightness), Mathf.Clamp(glowStrength, 0f, 2f),
                 Mathf.Clamp(junctionStrength, 0f, 5f), weight));
             block.SetVector(MotionId, new Vector4(elapsed, Mathf.Clamp01(cellMotion), drift.x, drift.y));
-            block.SetFloat("_WebPulse", Mathf.Clamp01(pulseStrength));
+            block.SetVector(PulseId, new Vector4(Mathf.Clamp01(pulseStrength), 0f, 0f, 0f));
         }
     }
 }

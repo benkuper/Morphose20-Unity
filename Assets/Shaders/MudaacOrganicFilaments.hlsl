@@ -33,6 +33,7 @@ void MudaacOrganicFilaments_float(float3 Position, float4 BaseColor, float4 Fila
     float scale = max(0.02, Pattern.x), t = Motion.x;
     float2 uv = (p - Rect.xy) / max(Rect.zw, 0.0001);
     float envelope = saturate(1.0 - uv.x * uv.x) * saturate(1.0 - uv.y * uv.y);
+    envelope *= envelope;
     // Tile influence bends the entire interior gently, vanishing smoothly at each tile boundary.
     // At zero influence, all fragments sample precisely the same facade-wide field.
     float2 tileWarp = float2(sin(uv.y * 2.4 + Surface.w * 6.283),
@@ -70,9 +71,9 @@ void MudaacOrganicFilaments_float(float3 Position, float4 BaseColor, float4 Fila
     float width = max(0.0, Strands.x);
     float membrane = width > 0.0 ? 1.0 - smoothstep(width, width + aa, distance) : 0.0;
     float halo = Glow.x > 0.0 ? exp2(-distance / max(Glow.x, 0.0001) * 3.0) * Glow.y : 0.0;
-    float junction = exp2(-(third - first) * 32.0) * Glow.z;
-    float pulse = lerp(1.0, 0.25 + 0.75 * pow(0.5 + 0.5 * sin(t * 1.8
-        + MudaacOrganicNoise(q * 0.65) * 8.0), 2.0), saturate(Glow.w));
+    float junction = exp2(-(third - first) * 22.0) * Glow.z;
+    float pulse = lerp(1.0, 0.06 + 1.8 * pow(0.5 + 0.5 * sin(t * 1.8
+        + MudaacOrganicNoise(q * 0.65) * 8.0), 3.0), saturate(Glow.w));
 
     float angle = atan2(nearest.y, nearest.x);
     float angleWave = angle / 6.2831853 * floor(Strands.y) + first * 3.0

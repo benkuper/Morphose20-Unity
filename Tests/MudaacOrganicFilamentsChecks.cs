@@ -95,6 +95,25 @@ try
     globalFilaments.filamentMaterial = filaments.filamentMaterial;
     filaments.enabled = false; controller.globalModifiers = shared; controller.EvaluateTiles(9);
     check(renderer.sharedMaterial == globalFilaments.filamentMaterial, "Global Modifiers can supply the shared filaments effect");
+    controller.EvaluateTiles(9.1f); renderer.GetPropertyBlock(block, 0);
+    float sharedTime = block.GetVector("_OrganicMotion").x;
+    var secondRoot = new GameObject("Independent filament controller");
+    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(secondRoot, scene);
+    try
+    {
+        var secondPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        secondPanel.name = "Concrete panel independent clock"; secondPanel.transform.SetParent(secondRoot.transform);
+        secondPanel.GetComponent<Renderer>().sharedMaterial = source;
+        var secondController = secondRoot.AddComponent<MudaacTileController>();
+        secondController.globalModifiers = shared; secondController.EvaluateTiles(50);
+        secondPanel.GetComponent<Renderer>().GetPropertyBlock(block, 0);
+        check(sharedTime > 0 && block.GetVector("_OrganicMotion").x == 0,
+            "Shared modifiers give each controller an independent animation clock");
+        secondController.RestoreTiles(); controller.EvaluateTiles(9.2f); renderer.GetPropertyBlock(block, 0);
+        check(block.GetVector("_OrganicMotion").x > sharedTime,
+            "Restoring one controller does not reset another controller's flow");
+    }
+    finally { UnityEngine.Object.DestroyImmediate(secondRoot); }
     controller.globalModifiers = null; controller.EvaluateTiles(9);
     check(renderer.sharedMaterial == source, "Removing Global Modifiers restores original materials");
     filaments.enabled = true;

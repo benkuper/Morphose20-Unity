@@ -45,7 +45,7 @@ float3 MudaacWebCells(float2 p, float time, float motion, float seed)
 void MudaacNeuralWeb_float(float3 Position, float4 BaseColor, float4 Background, float4 StrandColor,
     float4 JunctionColor, float4 RestX, float4 RestY, float4 RestZ, float4 RestOrigin,
     float4 AxisX, float4 AxisY, float4 Shape, float4 Detail, float4 Light, float4 Motion,
-    float Pulse, out float3 Color, out float Alpha)
+    float4 Pulse, out float3 Color, out float Alpha)
 {
     float3 world = RestOrigin.xyz + RestX.xyz * Position.x + RestY.xyz * Position.y + RestZ.xyz * Position.z;
     float2 plane = float2(dot(world, AxisX.xyz) - AxisX.w, dot(world, AxisY.xyz) - AxisY.w);
@@ -75,7 +75,7 @@ void MudaacNeuralWeb_float(float3 Position, float4 BaseColor, float4 Background,
         float halo = Shape.z > 0.0 ? exp2(-edge / max(Shape.z / Shape.x, 0.0001) * 3.0) * Light.y : 0.0;
         float membrane = exp2(-edge / max(width * 3.5, 0.0001)) * 0.2;
         float glow = exp2(-node / max(width * 5.0 + aa, 0.0001) * 1.8);
-        float pulse = lerp(1.0, 0.55 + 0.45 * sin(Motion.x * 1.7 + variation * 12.0 + layer), saturate(Pulse));
+        float pulse = lerp(1.0, 0.55 + 0.45 * sin(Motion.x * 1.7 + variation * 12.0 + layer), saturate(Pulse.x));
         // Attenuate subpixel filaments instead of letting distant fine layers shimmer.
         float resolved = saturate(1.0 / max(length(fwidth(q)), 0.0001));
         strands += (core * 0.58 + halo + membrane) * strength * pulse * resolved;
@@ -84,8 +84,8 @@ void MudaacNeuralWeb_float(float3 Position, float4 BaseColor, float4 Background,
         strength *= saturate(Detail.y);
     }
     float grain = MudaacWebNoise(plane * 150.0 + seed);
-    float texture = lerp(1.0, 0.65 + grain * 0.7, saturate(Detail.z));
-    float3 web = Background.rgb + (StrandColor.rgb * strands * texture
+    float grainModulation = lerp(1.0, 0.65 + grain * 0.7, saturate(Detail.z));
+    float3 web = Background.rgb + (StrandColor.rgb * strands * grainModulation
         + JunctionColor.rgb * junctions * Light.z) * max(Light.x, 0.0) * step(0.000001, Shape.y);
     Color = lerp(BaseColor.rgb, web, saturate(Light.w));
     Alpha = 1.0;

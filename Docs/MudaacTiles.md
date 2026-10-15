@@ -158,6 +158,58 @@ The mist and far edges approximate a **box-shaped interior** within the existing
 
 Validated in Unity 6000.4.5f1 / HDRP 17.4.0: **22 integration checks** and **22 rendering checks** pass, including imported scale/rotation, influencers, global modifiers, restoration, rear wires, grain, fog, drift, extreme settings, the actual bevelled FBX panel, later rotation/nonuniform scaling, and the production 11.1 EV exposure. The production Front_Camera was inspected with the selected facade tiles using the effect. No Console errors or warnings were present. Run `Tests/MudaacWireVolumeChecks.cs` and `Tests/MudaacWireVolumeRenderingChecks.cs` through Unity MCP in Edit Mode. `Tests/GenerateMudaacWireVolumeGraph.py` regenerates the graph after the HLSL has been imported. Player builds and final installation performance have not been measured.
 
+## Organic filaments
+
+**Mudaac / Modifiers / Organic Filaments** creates animated cellular membranes, fine radial strands, soft mist and bright pulsing junctions throughout the selected tile surfaces. The recording's monochrome organic flow is the visual reference. It is attached to **Mudaac Model**, with edit-mode preview enabled on the existing 222 selected tiles. Previous modifier settings and enabled states are preserved; the new component runs last among the local modifiers and owns the visible tile material.
+
+![Organic membranes and filaments](Images/MudaacOrganicFilaments.png)
+
+| Controls | Effect |
+| --- | --- |
+| Cell Size / Distortion / Cell Motion | Membrane spacing in metres, curvature and breathing movement |
+| Tile Influence | Zero uses one continuous facade-wide field; higher values bend the pattern independently inside each tile, fading to zero with a flat slope at its projected boundaries |
+| Membrane Width | Bright core width in metres; zero removes the core independently of strands and glow |
+| Strand Strength / Density / Mist Strength | Fine radial fibres and a faint granular veil inside the cells |
+| Glow Width / Strength / Junction Strength | Soft local halos and brighter cellular necks |
+| Pulse Amount | Moving brightness variation across membranes, fibres and junctions |
+| Filament Color / Brightness / Background Color | HDR Unlit appearance, independent of scene lighting and camera exposure |
+| Background Blend | Zero retains each original material slot's base colour behind the filaments; one uses Background Color |
+| Speed / Drift / Seed | Shape evolution, facade-plane travel and deterministic pattern variation |
+| Modifier Weight / Influencers | Blend the effect per tile using the existing weighting system |
+
+The facade is tuned to Cell Size `1.75`, Tile Influence `0.44`, Membrane Width `0.003`, Brightness `1.1`, Pulse Amount `0.9`, Strand Strength `0.8`, Glow Strength `0.25` and Junction Strength `2`. Other controls use the component defaults. **Pause / Resume**, **Restart Animation** and **Preview Organic Filaments / Stop Preview And Restore** are available in the Inspector. Disabling the modifier restores the preceding enabled effect on the next controller evaluation. Stopping controller preview restores the authored materials and property blocks.
+
+![Organic filaments on the facade](Images/MudaacOrganicFilamentsFacade.png)
+
+`MudaacOrganicFilaments.mat`, `MudaacOrganicFilaments.shadergraph` and `MudaacOrganicFilaments.hlsl` provide an opaque HDRP Unlit material. One shared material and per-slot property blocks retain original base-colour overrides. Authored world coordinates keep the pattern attached when transform modifiers move the tiles. Moving cellular sites, layered domain distortion and radial fibres generate the image without particles or added geometry. Global Modifiers are supported, with independent animation clocks for each controller. Fine strands fade toward their average intensity when smaller than a pixel.
+
+The field is projected onto the controller's right/up plane; rectangular projected footprints control the tile influence. Strong curvature or surfaces viewed edge-on can stretch the pattern. This is a surface effect: it does not create the reference's physical volume or fill empty gaps between tiles. Source texture and normal maps are not carried into the base-colour blend. Additional enabled material effects still evaluate, and the last material replacement in local/global component order wins.
+
+Validated in Unity 6000.4.5f1 / HDRP 17.4.0: **28 integration checks** and **21 rendering checks** pass, covering influencers, global sharing and independent clocks, pause/restart, source material/slot restoration, imported scale and rotation, whole-interior coverage, seamless unequal-tile rendering at zero influence, pattern controls, finite extreme values, the actual bevelled FBX mesh and production 11.1 EV exposure. The production Front_Camera was inspected. Run `Tests/MudaacOrganicFilamentsChecks.cs` and `Tests/MudaacOrganicFilamentsRenderingChecks.cs` through Unity MCP; `Tests/GenerateMudaacOrganicFilamentsGraph.py` regenerates the graph after importing the HLSL. Scene and live tuning backups are in `.codex/backups/mudaac-organic-filaments-2026-10-15/`. Player builds and installation GPU performance have not been measured.
+
+## Neural web
+
+**Mudaac / Modifiers / Neural Web** renders the selected tiles as an animated cellular web: dark interiors, curved pale filaments, smaller nested networks and luminous junctions. `MudaacTileNeuralWebModifier` is enabled on **Mudaac Model** with edit-mode preview; 222 tiles were selected at validation. Existing effect components and their settings are retained.
+
+![Neural web shader preview](Images/MudaacNeuralWeb.png)
+
+| Controls | Effect |
+| --- | --- |
+| Cell Size | Largest cell size in facade-plane metres |
+| Strand Width / Glow Width / Glow Strength | Filament cores and soft surrounding light; widths use metres |
+| Layers / Fine Strength | One to three nested networks; fewer layers reduce GPU work |
+| Distortion / Cell Motion / Seed | Curvature, animated site movement and repeatable pattern |
+| Background / Strand / Junction Color / Brightness | Dark-cell palette, strand tint and bright nodes |
+| Junction Strength / Grain Strength / Pulse Strength | Connecting lights, subtle filament texture and animated brightness |
+| Animation Speed / Drift / Pause / Restart Animation | Playback; zero animation speed freezes the pattern |
+| Modifier Weight / Influencers | Blend the complete effect per tile, sampling each tile's authored centre |
+
+The pattern is continuous across the controller's facade plane and reconstructed from each mesh's authored pose, so transform modifiers carry the texture with their tile. Influencers control whole tiles rather than clipping filaments within a tile. It also supports **Global Modifiers**. Use one material-replacement effect at a time; the last enabled material modifier owns the final shader.
+
+`Assets/Materials/MudaacNeuralWeb.mat` uses `Assets/Shaders/MudaacNeuralWeb.shadergraph` and `MudaacNeuralWeb.hlsl`. This opaque HDRP Unlit shader shares one material, with per-slot property blocks. Original materials and property blocks restore through the existing controller when preview stops, tiles are excluded, weight reaches zero, the modifier is disabled and evaluated, or the scene saves. Partial influence blends the source base colour; texture and normal maps are not copied. Facade-plane projection stretches on surfaces viewed edge-on to that plane, and the effect adds no geometry or physical volume.
+
+Unity 6000.4.5f1 / HDRP 17.4.0: **23 integration checks** and **19 actual rendering checks** passed. Coverage includes material slots/overrides, restoration, exclusion, sphere influence, global modifiers, animation/pause/restart, shader controls, continuity across unequal tile partitions, production 11.1 EV exposure and finite extreme settings. Front_Camera was inspected with Neural Web applied. No Console errors or warnings remained. Run `Tests/MudaacNeuralWebChecks.cs` and `Tests/MudaacNeuralWebRenderingChecks.cs` through Unity MCP in Edit Mode. `Tests/GenerateMudaacNeuralWebGraph.py` regenerates the graph after importing its HLSL. Player builds, Play Mode and installation GPU performance were not validated. Scene and Inspector backups are in `.codex/backups/mudaac-neural-web-2026-10-15/`.
+
 ## Studio rendering
 
 The Mudaac scene's **Global Volume** uses `Assets/Settings/Mudaac Studio Volume.asset`. It combines a neutral gradient sky, fixed exposure (11.1 EV), ACES tone mapping, full-resolution ambient occlusion, contact shadows and subtle bloom. **Studio Key Light** supplies 28,000 lux with a 7-degree angular diameter and 4096-pixel PCSS shadows. Shadows update every frame as modifiers move the panels. The High Fidelity HDRP asset already supports these effects and now uses 32-bit directional shadow depth.
